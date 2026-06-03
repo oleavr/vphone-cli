@@ -322,6 +322,14 @@ boot_dfu: build boot_binary_check
 		--config ./config.plist \
 		--dfu
 
+FRIDA_KERNEL_DEBUG_PORT ?= 7331
+
+frida: bundle vphoned boot_binary_check
+	cd $(VM_DIR) && "$(CURDIR)/$(BUNDLE_BIN)" \
+		--config ./config.plist \
+		--kernel-debug-port $(FRIDA_KERNEL_DEBUG_PORT) \
+		--frida
+
 # ═══════════════════════════════════════════════════════════════════
 # Firmware pipeline
 # ═══════════════════════════════════════════════════════════════════

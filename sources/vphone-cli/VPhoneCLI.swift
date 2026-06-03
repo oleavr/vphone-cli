@@ -56,6 +56,9 @@ struct VPhoneBootCLI: ParsableCommand {
     @Flag(name: .customLong("no-vphoned"), help: "Exclude vphoned usage (patchless-only).")
     var noVphoned: Bool = false
 
+    @Flag(name: .customLong("frida"), help: "Bridge Frida's barebone backend transports (gdb stub + hostlink) over vsock.")
+    var frida: Bool = false
+
     /// DFU mode runs headless (no GUI).
     var noGraphics: Bool {
         dfu
@@ -66,6 +69,10 @@ struct VPhoneBootCLI: ParsableCommand {
     }
 
     mutating func validate() throws {
+        if frida && dfu {
+            throw ValidationError("`--frida` is unavailable with `--dfu`.")
+        }
+
         if dfu, let packageURL = installPackageURL {
             throw ValidationError(
                 "`--install-ipa` is unavailable with `--dfu` because DFU mode does not start the guest control channel: \(packageURL.path)"

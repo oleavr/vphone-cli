@@ -2,6 +2,11 @@ import AppKit
 import ArgumentParser
 import Foundation
 
+// Line-buffer stdout so the [frida] bridge announcements (e.g. the GDB stub
+// port) are emitted promptly instead of languishing in a block buffer until the
+// process exits; the kernel serial is written unbuffered via FileHandle.
+setvbuf(stdout, nil, _IOLBF, 0)
+
 do {
     let command = try VPhoneCLI.parseAsRoot()
 

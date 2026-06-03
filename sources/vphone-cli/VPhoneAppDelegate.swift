@@ -13,6 +13,7 @@ class VPhoneAppDelegate: NSObject, NSApplicationDelegate {
     private var appWindowController: VPhoneAppWindowController?
     private var locationProvider: VPhoneLocationProvider?
     private var hostControl: VPhoneHostControl?
+    private var fridaBridge: VPhoneFridaBridge?
     private var sigintSource: DispatchSourceSignal?
     private var didAttemptAutoInstall = false
 
@@ -90,6 +91,7 @@ class VPhoneAppDelegate: NSObject, NSApplicationDelegate {
 
             if let device = vm.virtualMachine.socketDevices.first as? VZVirtioSocketDevice {
                 control.connect(device: device)
+                try attachFridaBridge(to: device)
             }
         }
 
@@ -203,6 +205,14 @@ class VPhoneAppDelegate: NSObject, NSApplicationDelegate {
                 provider?.stopForwarding()
             }
         }
+    }
+
+    @MainActor
+    private func attachFridaBridge(to device: VZVirtioSocketDevice) throws {
+        guard cli.frida else { return }
+        let bridge = VPhoneFridaBridge()
+        try bridge.attach(to: device)
+        fridaBridge = bridge
     }
 
     @MainActor
